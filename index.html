@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b1f3a" />
+  <title>Silica Reduction Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">Si</div>
+        <div>
+          <div class="eyebrow">Technical Department</div>
+          <div class="brand-title">Silica Reduction Dashboard</div>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Dashboard navigation">
+        <button class="nav-item active" data-section="executive">Executive Summary</button>
+        <button class="nav-item" data-section="actions">Action And Highlight <span id="pendingBadge" class="nav-badge">0</span></button>
+        <button class="nav-item" data-section="appendix">Appendix</button>
+        <button class="nav-item" data-section="data">Data Input</button>
+      </nav>
+
+      <div class="sidebar-card">
+        <div class="sidebar-card-title">Data Storage</div>
+        <p>This GitHub Pages version stores imported data in this browser only.</p>
+        <button class="btn btn-secondary btn-small" id="downloadBackupBtn">Download JSON Backup</button>
+        <label class="btn btn-secondary btn-small file-label">Restore JSON Backup<input id="restoreBackupInput" type="file" accept="application/json,.json" /></label>
+      </div>
+
+      <div class="sidebar-footer">
+        <span>Static GitHub-ready build</span>
+        <span>v1.0</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-title-wrap">
+          <button class="icon-btn mobile-only" id="sidebarToggle" aria-label="Toggle navigation">☰</button>
+          <div>
+            <div class="eyebrow">Performance / Actions / Evidence</div>
+            <h1>Silica Reduction Dashboard</h1>
+            <p id="periodSubtitle">Weekly Reports And Daily Trends Across Each Month.</p>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <div class="field compact-field">
+            <label for="reportMode">View Period</label>
+            <select id="reportMode">
+              <option value="weekly">Weekly Report</option>
+              <option value="monthly">Monthly Report</option>
+            </select>
+          </div>
+          <div class="field compact-field" id="weekEndWrap">
+            <label for="weekEnd">Week Ending</label>
+            <input id="weekEnd" type="date" />
+          </div>
+          <div class="field compact-field hidden" id="monthWrap">
+            <label for="monthPicker">Month</label>
+            <input id="monthPicker" type="month" />
+          </div>
+          <button class="btn btn-secondary" id="exportExcelBtn">Export Excel</button>
+          <button class="btn btn-primary" id="exportPdfBtn">Export PDF</button>
+        </div>
+      </header>
+
+      <div class="period-strip">
+        <div><span class="muted">Period</span><strong id="periodLabel">—</strong></div>
+        <div class="period-meta"><span class="status-dot"></span><span id="dataStatus">Demo data loaded</span></div>
+      </div>
+
+      <section class="section-page active" id="section-executive">
+        <div id="executiveContent"></div>
+      </section>
+
+      <section class="section-page" id="section-actions">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">Ownership And Follow-Up</div>
+            <h2>Action And Highlight</h2>
+          </div>
+          <button class="btn btn-primary" id="addActionBtn">Add Action</button>
+        </div>
+        <div id="actionsContent"></div>
+      </section>
+
+      <section class="section-page" id="section-appendix">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">Process Evidence</div>
+            <h2>Appendix</h2>
+          </div>
+          <p class="section-note">Process trends support investigation; they do not establish causation.</p>
+        </div>
+        <div id="appendixContent"></div>
+      </section>
+
+      <section class="section-page" id="section-data">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">Update Workflow</div>
+            <h2>Data Input</h2>
+          </div>
+          <button class="btn btn-danger-outline" id="resetDemoBtn">Reset Demo Data</button>
+        </div>
+
+        <div class="input-grid">
+          <article class="panel upload-panel">
+            <div class="panel-heading">
+              <div>
+                <h3>Load Excel Workbook</h3>
+                <p>Supports the existing wide workbook structure and a full year of daily data.</p>
+              </div>
+            </div>
+            <div class="dropzone" id="dropzone">
+              <input id="excelInput" type="file" accept=".xlsx,.xls" />
+              <strong>Choose Excel File</strong>
+              <span>or drag and drop it here</span>
+              <small>Parsing happens in your browser; the file is not uploaded to a server by this static build.</small>
+            </div>
+            <div class="rule-list">
+              <div><b>Duplicate dates:</b> new nonblank cells replace prior values.</div>
+              <div><b>Blank cells:</b> existing values are preserved.</div>
+              <div><b>Zero:</b> treated as a real measurement.</div>
+              <div><b>Monthly averages:</b> automatically calculated from daily data; monthly-sheet values override the automatic average.</div>
+            </div>
+            <div id="importPreview" class="import-preview hidden"></div>
+          </article>
+
+          <article class="panel paste-panel">
+            <div class="panel-heading">
+              <div>
+                <h3>Paste Data</h3>
+                <p>Use this when corporate policy blocks file selection. Paste directly from Excel.</p>
+              </div>
+            </div>
+            <div class="field">
+              <label for="pasteSheet">Target Sheet</label>
+              <select id="pasteSheet"></select>
+            </div>
+            <div class="field">
+              <label for="pasteData">Tab-Separated Data</label>
+              <textarea id="pasteData" rows="10" placeholder="Paste Excel cells here, including the header row and Date column."></textarea>
+            </div>
+            <button class="btn btn-primary" id="pasteImportBtn">Save And Update Dashboard</button>
+            <div id="pasteMessage" class="inline-message"></div>
+          </article>
+        </div>
+
+        <article class="panel data-health-panel">
+          <div class="panel-heading">
+            <div>
+              <h3>Current Data Coverage</h3>
+              <p>Daily input can span multiple years; weekly periods may cross New Year automatically.</p>
+            </div>
+          </div>
+          <div id="dataCoverage"></div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="actionDialog" class="action-dialog">
+    <form method="dialog" id="actionForm">
+      <div class="dialog-header">
+        <div>
+          <div class="eyebrow">Action Tracker</div>
+          <h3 id="actionDialogTitle">Add Action</h3>
+        </div>
+        <button value="cancel" class="icon-btn" aria-label="Close">×</button>
+      </div>
+      <input type="hidden" id="actionId" />
+      <div class="form-grid">
+        <div class="field"><label for="actionArea">Area</label><select id="actionArea" required><option>Woodyard</option><option>Fiberline</option><option>Pulp Dryer</option><option>Technical</option></select></div>
+        <div class="field"><label for="actionStatus">Status</label><select id="actionStatus" required><option>Pending</option><option>Done</option><option>Cancelled</option></select></div>
+        <div class="field full"><label for="actionText">Action</label><input id="actionText" required /></div>
+        <div class="field"><label for="actionPic">PIC</label><input id="actionPic" /></div>
+        <div class="field"><label for="actionDue">Due</label><input id="actionDue" type="date" /></div>
+        <div class="field full"><label for="actionUpdate">Update</label><textarea id="actionUpdate" rows="4"></textarea></div>
+      </div>
+      <div class="dialog-actions">
+        <button value="cancel" class="btn btn-secondary">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveActionBtn">Save Action</button>
+      </div>
+    </form>
+  </dialog>
+
+  <template id="chartCardTemplate">
+    <article class="chart-card">
+      <div class="chart-card-header">
+        <div>
+          <h4 class="chart-title"></h4>
+          <p class="chart-subtitle"></p>
+        </div>
+      </div>
+      <div class="chart-legend"></div>
+      <div class="svg-chart"></div>
+    </article>
+  </template>
+</body>
+</html>
